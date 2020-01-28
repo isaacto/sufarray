@@ -8,6 +8,9 @@ verify_ssl = true
 [packages]
 pytest = "*"
 pytest-cov = "*"
+twine = "*"
+wheel = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.5"
