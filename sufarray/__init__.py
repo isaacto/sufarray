@@ -129,7 +129,7 @@ class SufArrayPD:
     """
     def __init__(self, text: str) -> None:
         self._text = text
-        self._tree = {0: self._init_names()}
+        self._inv_sa = self._init_names()
         self._array = self._compute_sufarray()
         self._lcp = self._compute_lcp()
         self._lcp_lr = self._compute_lcp_lr()
@@ -145,23 +145,25 @@ class SufArrayPD:
         cur_order = 0
         cur_len = 1
         while cur_len < len(self._text):
-            self._tree[cur_order + 1] = self._prefix_double(
-                self._tree[cur_order], cur_len)
+            names = self._prefix_double(cur_len)
             cur_order += 1
             cur_len *= 2
+            if names == self._inv_sa:
+                break
+            self._inv_sa = names
         ret = [-1] * len(self._text)
-        for pos, name in enumerate(self._tree[cur_order]):
+        for pos, name in enumerate(self._inv_sa):
             ret[name] = pos
         return ret
 
-    def _prefix_double(self, names: NameListType, n_len: int) -> NameListType:
+    def _prefix_double(self, n_len: int) -> NameListType:
+        names = self._inv_sa
         size = len(names)
         items = [names[pos] * (size + 1)
                  + (names[pos + n_len] if pos + n_len < size else -1)
                  for pos in range(size)]
         sorted_arr = sorted(list(range(size)), key=lambda pos: items[pos])
-        ret = self._make_names(items, sorted_arr)
-        return ret
+        return self._make_names(items, sorted_arr)
 
     @staticmethod
     def _make_names(items: typing.Union[str, typing.List[typing.Any]],
@@ -179,10 +181,9 @@ class SufArrayPD:
     def _compute_lcp(self) -> typing.List[int]:
         size = len(self._text)
         cur_lcp = 0
-        inv_sa = self._tree[max(self._tree)]
         ret = [0] * (len(self._text) + 1)  # Add 1 for easy lcp_lr computation
         for suf_start in range(size):
-            pos = inv_sa[suf_start]
+            pos = self._inv_sa[suf_start]
             if pos == 0:
                 cur_lcp = 0
                 continue
@@ -297,5 +298,5 @@ class SufArrayPD:
         return left, matched == len(substr)
 
 
-# SufArray = SufArrayPD
-SufArray = SufArrayBruteForce
+SufArray = SufArrayPD
+# SufArray = SufArrayBruteForce
