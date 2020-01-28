@@ -156,60 +156,12 @@ class SufArrayPD:
 
     def _prefix_double(self, names: NameListType, n_len: int) -> NameListType:
         size = len(names)
-        items = [names[pos + n_len] if pos + n_len < size else -1
+        items = [names[pos] * (size + 1)
+                 + (names[pos + n_len] if pos + n_len < size else -1)
                  for pos in range(size)]
-        sorted_arr = self._sort_names_cnt(list(range(size)), items)
-        sorted_arr = self._sort_names_cnt(sorted_arr, names)
-        for pos in range(size):
-            items[pos] += names[pos] * (size + 1)
+        sorted_arr = sorted(list(range(size)), key=lambda pos: items[pos])
         ret = self._make_names(items, sorted_arr)
         return ret
-
-    @staticmethod
-    def _sort_names_cnt(sorted_arr: NameListType,
-                        items: typing.List[int]) -> NameListType:
-        # Counting sort
-        counts = [0] * (len(items) + 1)  # name may be -1
-        # Count each name
-        for name in sorted_arr:
-            counts[items[name] + 1] += 1
-        # Accumulate to start number
-        last_cnt = 0
-        for name in range(len(counts)):
-            last_cnt, counts[name] = last_cnt + counts[name], last_cnt
-        # Assign new names
-        ret = [-1]  * len(items)
-        for name in sorted_arr:
-            item = items[name] + 1
-            ret[counts[item]] = name
-            counts[item] += 1
-        return ret
-
-        # # Also works, and not sure which is easier to make fast
-        # # + 1 because we use "-1" to represent off-array names
-        # buckets = [None] * (len(items) + 1) \
-        #           # type: typing.List[typing.Union[None, int, NameListType]]
-        # for name in sorted_arr:
-        #     item = items[name] + 1
-        #     if buckets[item] is None:
-        #         buckets[item] = name
-        #     elif isinstance(buckets[item], int):
-        #         buckets[item] = [buckets[item], name]
-        #     else:
-        #         buckets[item].append(name)
-        # ret = [-1] * len(items)
-        # pos = 0
-        # for b in buckets:
-        #     if b is None:
-        #         continue
-        #     if isinstance(b, int):
-        #         ret[pos] = b
-        #         pos += 1
-        #     else:
-        #         for name in b:
-        #             ret[pos] = name
-        #             pos += 1
-        # return ret
 
     @staticmethod
     def _make_names(items: typing.Union[str, typing.List[typing.Any]],
