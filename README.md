@@ -1,5 +1,8 @@
-# sufarray: Python-only implementation of suffix array
+# sufarray: implementation of suffix array
 
-At present it is using a rather brain-dead algorithm aiming at
-defining the interface.  Optimization and better documentations will
-be added a bit later.
+It uses prefix doubling for calculating the suffix array, which is O(n
+log n) time.  When searching for all occurrences of a string, it takes
+O(log n) time.  Further occurrences takes constant time.
+
+At present the implementation is Python only.  This has the drawback
+that the speed is not comparable with those of other languages.
